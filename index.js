@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, push, runTransaction } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js"; // optional
 
 const firebaseConfig = {
@@ -398,7 +398,7 @@ function handleTap(event) {
     }
 
     // Update global counter
-    update(ref(db, 'challenge/counter'), (current) => {
+    runTransaction(ref(db, 'challenge/counter'), (current) => {
         return (current || 0) + 1;
     });
 
