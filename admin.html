@@ -700,12 +700,6 @@
                 return;
             }
 
-            const confirmText = prompt('Type "RESET CHALLENGE" to confirm:');
-            if (confirmText !== 'RESET CHALLENGE') {
-                alert('Reset cancelled - incorrect confirmation text');
-                return;
-            }
-
             // Set status to reset first (this triggers client-side cleanup)
             database.ref('challenge/status').set('reset').then(() => {
                 // Wait a moment for clients to react, then clear everything
