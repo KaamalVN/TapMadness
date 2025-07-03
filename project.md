@@ -1,4 +1,4 @@
-Build a **fun, retro-minimalistic interactive web app** called **"Tap Madness"**, using **HTML + CSS + JavaScript** with **Firebase** for realtime updates and data storage.
+**fun, retro-minimalistic interactive web app** called **"Tap Madness"**, using **HTML + CSS + JavaScript** with **Firebase** for realtime updates and data storage.
 
 ✅ The website must be **dark mode only**, with a **retro aesthetic**:
 - Pixel-style fonts
@@ -139,14 +139,6 @@ firebase.database().ref('challenge/status').on('value', (snap) => {
 - Tap speed indicator
 
 ---
-
-## 🔐 Admin Controls
-
-- `/admin` route (protected by token or hidden access)
-- Start a new challenge
-- Reset challenge (clears all)
-- View stats: total taps, top users, tap speed
-- Optional: simulate taps (for testing)
 
 ---
 
