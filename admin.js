@@ -211,7 +211,7 @@ function updateLeaderboard(users) {
 // Admin Functions
 function startNewChallenge() {
     const goal = parseInt(newGoalInput.value);
-    if (!goal || goal < 1000) {
+    if (!goal || goal < 10) {
         alert('Please enter a valid goal (minimum 1,000)');
         return;
     }
