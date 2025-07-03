@@ -209,12 +209,12 @@ function showVictoryScreen() {
     document.getElementById('victoryTaps').textContent = challenge.counter.toLocaleString();
     document.getElementById('victoryTappers').textContent = totalParticipantsEl.textContent;
 
-    // Get final leaderboard
+    // Get final leaderboard (top 3 only)
     onValue(ref(db, 'users'), (snapshot) => {
         const users = snapshot.val() || {};
         const sortedUsers = Object.entries(users)
             .sort(([,a], [,b]) => b.taps - a.taps)
-            .slice(0, 10);
+            .slice(0, 3); // Only top 3
 
         let leaderboardHTML = '';
         sortedUsers.forEach(([user, data], index) => {
@@ -392,10 +392,15 @@ function copyLink() {
 let lastTapTime = 0;
 
 function filteredHandleTap(event) {
-    const now = Date.now();
-    if (now - lastTapTime < 500) return; // Ignore duplicate tap
-    lastTapTime = now;
-    handleTap(event);
+    if (event.type === 'touchstart') {
+        const now = Date.now();
+        if (now - lastTapTime < 500) return; // Ignore duplicate tap on mobile
+        lastTapTime = now;
+        handleTap(event);
+    } else {
+        // For click events (desktop), always allow
+        handleTap(event);
+    }
 }
 
 tapButton.addEventListener('touchstart', filteredHandleTap, { passive: false });
