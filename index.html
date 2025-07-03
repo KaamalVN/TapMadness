@@ -842,6 +842,9 @@
                 const oldStatus = challenge.status;
                 challenge = { ...challenge, ...challengeData };
 
+                // Ensure username is initialized after challenge is loaded
+                initUser();
+
                 // Handle status changes
                 if (oldStatus !== challenge.status) {
                     handleStatusChange(challenge.status);
@@ -1041,6 +1044,7 @@
 
         function updateLeaderboard(users) {
             const sortedUsers = Object.entries(users)
+                .filter(([user, data]) => data && typeof data.taps === 'number')
                 .sort(([,a], [,b]) => b.taps - a.taps)
                 .slice(0, 10);
 
@@ -1059,7 +1063,7 @@
                 }
                 item.innerHTML = `
                     <span>#${index + 1} ${user}</span>
-                    <span>${data.taps.toLocaleString()}</span>
+                    <span>${data.taps ? data.taps.toLocaleString() : '0'}</span>
                 `;
                 leaderboardList.appendChild(item);
             });
@@ -1174,13 +1178,8 @@
                 loader.classList.add('hidden');
                 setupConnectionMonitoring();
                 setupFirebaseListeners();
-                
-                // Update time elapsed every second
                 setInterval(updateTimeElapsed, 1000);
-                
-                // Update taps per second every 100ms
                 setInterval(updateTapsPerSecond, 100);
-                
                 showMessage('TAP MADNESS LOADED! 🚀');
             }, 4000);
         }
