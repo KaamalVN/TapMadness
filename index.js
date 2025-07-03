@@ -390,15 +390,18 @@ function copyLink() {
 
 // Tap Handler
 let lastTapTime = 0;
+let touchHandled = false;
 
 function filteredHandleTap(event) {
     if (event.type === 'touchstart') {
-        const now = Date.now();
-        if (now - lastTapTime < 500) return; // Ignore duplicate tap on mobile
-        lastTapTime = now;
+        touchHandled = true;
         handleTap(event);
-    } else {
-        // For click events (desktop), always allow
+    } else if (event.type === 'click') {
+        if (touchHandled) {
+            // Ignore the click event if it immediately follows a touch event
+            touchHandled = false;
+            return;
+        }
         handleTap(event);
     }
 }
