@@ -263,6 +263,20 @@ function updateCounter() {
     // Disable tap button if goal reached
     if (challenge.counter >= challenge.goal) {
         tapButton.disabled = true;
+        // If status is still 'active', set to 'completed' and set end_time
+        if (challenge.status === 'active' && !victoryShown) {
+            const challengeRef = ref(db, 'challenge');
+            runTransaction(challengeRef, (current) => {
+                if (current && current.status === 'active' && current.counter >= current.goal) {
+                    return {
+                        ...current,
+                        status: 'completed',
+                        end_time: Date.now()
+                    };
+                }
+                return current;
+            });
+        }
         if (!victoryShown) {
             showVictoryScreen();
         }
