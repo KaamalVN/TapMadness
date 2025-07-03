@@ -347,24 +347,38 @@ function updateTimeElapsed() {
 function updateLeaderboard(users) {
     const sortedUsers = Object.entries(users)
         .filter(([user, data]) => data && typeof data.taps === 'number')
-        .sort(([,a], [,b]) => b.taps - a.taps)
-        .slice(0, 10);
+        .sort(([,a], [,b]) => b.taps - a.taps);
 
     leaderboardList.innerHTML = '';
-    
-    if (sortedUsers.length === 0) {
-        leaderboardList.innerHTML = '<div class="leaderboard-item"><span>No tappers yet...</span><span>0</span></div>';
-        return;
+
+    // Find current user's rank
+    let userRank = -1;
+    sortedUsers.forEach(([user, data], idx) => {
+        if (user === username) userRank = idx + 1;
+    });
+
+    // Prepare top 10 (or 9 + user if not in top 10)
+    let displayUsers = sortedUsers.slice(0, 10);
+    let userInTop10 = userRank > 0 && userRank <= 10;
+    if (!userInTop10 && userRank > 0) {
+        // Show top 9 + user
+        displayUsers = sortedUsers.slice(0, 9);
+        displayUsers.push(sortedUsers[userRank - 1]);
     }
 
-    sortedUsers.forEach(([user, data], index) => {
+    displayUsers.forEach(([user, data], index) => {
+        let displayRank = index + 1;
+        if (!userInTop10 && index === 9) {
+            // If user is not in top 10, show their actual rank
+            displayRank = userRank;
+        }
         const item = document.createElement('div');
         item.className = 'leaderboard-item';
         if (user === username) {
             item.classList.add('current-user');
         }
         item.innerHTML = `
-            <span>#${index + 1} ${user}</span>
+            <span>#${displayRank} ${user}</span>
             <span>${data.taps ? data.taps.toLocaleString() : '0'}</span>
         `;
         leaderboardList.appendChild(item);
