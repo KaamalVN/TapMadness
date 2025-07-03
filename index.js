@@ -252,6 +252,13 @@ function updateCounter() {
     const progress = Math.min((challenge.counter / challenge.goal) * 100, 100);
     progressFill.style.width = progress + '%';
 
+    // Disable tap button if goal reached
+    if (challenge.counter >= challenge.goal) {
+        tapButton.disabled = true;
+    } else {
+        tapButton.disabled = false;
+    }
+
     // Check for milestones
     checkMilestones();
 }
@@ -382,11 +389,17 @@ function copyLink() {
 }
 
 // Tap Handler
-if ('ontouchstart' in window) {
-    tapButton.addEventListener('touchstart', handleTap, { passive: true });
-} else {
-    tapButton.addEventListener('click', handleTap);
+let lastTapTime = 0;
+
+function filteredHandleTap(event) {
+    const now = Date.now();
+    if (now - lastTapTime < 500) return; // Ignore duplicate tap
+    lastTapTime = now;
+    handleTap(event);
 }
+
+tapButton.addEventListener('touchstart', filteredHandleTap, { passive: false });
+tapButton.addEventListener('click', filteredHandleTap);
 
 function handleTap(event) {
     event.preventDefault();
@@ -400,8 +413,18 @@ function handleTap(event) {
         return;
     }
 
+    // Prevent tapping if goal is reached
+    if (challenge.counter >= challenge.goal) {
+        tapButton.disabled = true;
+        showMessage('Goal reached!');
+        return;
+    }
+
     // Update global counter
     runTransaction(ref(db, 'challenge/counter'), (current) => {
+        if (current >= challenge.goal) {
+            return current; // Do not increment beyond goal
+        }
         return (current || 0) + 1;
     });
 
