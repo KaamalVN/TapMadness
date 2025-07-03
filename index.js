@@ -35,6 +35,11 @@ let tapsPerSecond = 0;
 let tapTimes = [];
 let isConnected = false;
 
+// Timer interval IDs
+let timeElapsedInterval = null;
+let tapsPerSecondInterval = null;
+let victoryShown = false;
+
 // DOM Elements
 const loader = document.getElementById('loader');
 const gameScreen = document.getElementById('gameScreen');
@@ -199,7 +204,10 @@ function showWaitingScreen() {
 }
 
 function showVictoryScreen() {
-    const timeTaken = challenge.end_time - challenge.start_time;
+    stopTimers();
+    if (victoryShown) return;
+    victoryShown = true;
+    const timeTaken = (challenge.end_time || Date.now()) - challenge.start_time;
     const hours = Math.floor(timeTaken / 3600000);
     const minutes = Math.floor((timeTaken % 3600000) / 60000);
     const seconds = Math.floor((timeTaken % 60000) / 1000);
@@ -255,6 +263,9 @@ function updateCounter() {
     // Disable tap button if goal reached
     if (challenge.counter >= challenge.goal) {
         tapButton.disabled = true;
+        if (!victoryShown) {
+            showVictoryScreen();
+        }
     } else {
         tapButton.disabled = false;
     }
@@ -517,14 +528,21 @@ function handleTap(event) {
     }
 }
 
+function stopTimers() {
+    if (timeElapsedInterval) clearInterval(timeElapsedInterval);
+    if (tapsPerSecondInterval) clearInterval(tapsPerSecondInterval);
+    timeElapsedInterval = null;
+    tapsPerSecondInterval = null;
+}
+
 // Initialize
 function init() {
     setTimeout(() => {
         loader.classList.add('hidden');
         setupConnectionMonitoring();
         setupFirebaseListeners();
-        setInterval(updateTimeElapsed, 1000);
-        setInterval(updateTapsPerSecond, 100);
+        timeElapsedInterval = setInterval(updateTimeElapsed, 1000);
+        tapsPerSecondInterval = setInterval(updateTapsPerSecond, 100);
         showMessage('TAP MADNESS LOADED! 🚀');
     }, 4000);
 }
