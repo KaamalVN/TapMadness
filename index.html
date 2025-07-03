@@ -706,25 +706,26 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js"; // optional
 
-    <script>
-        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBQOSW3zIUQHI0qZ5DedfkhwnNSaEew3OQ",
-            authDomain: "tap-madness-67ddb.firebaseapp.com",
-            databaseURL: "https://tap-madness-67ddb-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "tap-madness-67ddb",
-            storageBucket: "tap-madness-67ddb.firebasestorage.app",
-            messagingSenderId: "514868420312",
-            appId: "1:514868420312:web:f6604cce0ce8b74d3701ad",
-            measurementId: "G-2J3HLFYZVR"
+            apiKey: "AIzaSyBK1CJlZacBh2DIPucvKQmqIqoLI3rvxgE",
+            authDomain: "taptest-4249f.firebaseapp.com",
+            databaseURL: "https://taptest-4249f-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "taptest-4249f",
+            storageBucket: "taptest-4249f.appspot.com",
+            messagingSenderId: "566703104816",
+            appId: "1:566703104816:web:1d5d8059fccebf858c5ef5",
+            measurementId: "G-SGFZW2F5FV"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        // const analytics = getAnalytics(app); // optional
 
         // Game State
         let challenge = {
@@ -815,8 +816,8 @@
 
         // Connection monitoring
         function setupConnectionMonitoring() {
-            const connectedRef = database.ref('.info/connected');
-            connectedRef.on('value', (snapshot) => {
+            const connectedRef = ref(db, '.info/connected');
+            onValue(connectedRef, (snapshot) => {
                 isConnected = snapshot.val();
                 if (isConnected) {
                     statusText.textContent = 'ONLINE';
@@ -831,7 +832,7 @@
         // Firebase Listeners
         function setupFirebaseListeners() {
             // Challenge listener
-            database.ref('challenge').on('value', (snapshot) => {
+            onValue(ref(db, 'challenge'), (snapshot) => {
                 const challengeData = snapshot.val();
                 if (!challengeData) {
                     showWaitingScreen();
@@ -851,14 +852,14 @@
             });
 
             // Users listener
-            database.ref('users').on('value', (snapshot) => {
+            onValue(ref(db, 'users'), (snapshot) => {
                 const users = snapshot.val() || {};
                 totalParticipantsEl.textContent = Object.keys(users).length;
                 updateLeaderboard(users);
             });
 
             // Broadcast listener
-            database.ref('broadcast').on('value', (snapshot) => {
+            onValue(ref(db, 'broadcast'), (snapshot) => {
                 const broadcast = snapshot.val();
                 if (broadcast && broadcast.message && broadcast.timestamp) {
                     showMessage(`📢 ${broadcast.message}`);
@@ -915,7 +916,7 @@
             document.getElementById('victoryTappers').textContent = totalParticipantsEl.textContent;
 
             // Get final leaderboard
-            database.ref('users').once('value', (snapshot) => {
+            onValue(ref(db, 'users'), (snapshot) => {
                 const users = snapshot.val() || {};
                 const sortedUsers = Object.entries(users)
                     .sort(([,a], [,b]) => b.taps - a.taps)
@@ -1102,7 +1103,7 @@
             }
 
             // Update global counter
-            database.ref('challenge/counter').transaction((current) => {
+            update(ref(db, 'challenge/counter'), (current) => {
                 return (current || 0) + 1;
             });
 
@@ -1112,11 +1113,9 @@
             localStorage.setItem('tapmadness_user_taps', userTaps.toString());
 
             // Update user in Firebase
-            database.ref(`users/${username}`).set({
-                taps: userTaps,
-                joined: firebase.database.ServerValue.TIMESTAMP,
-                lastActive: firebase.database.ServerValue.TIMESTAMP
-            });
+            set(ref(db, `users/${username}/taps`), userTaps);
+            set(ref(db, `users/${username}/joined`), Date.now());
+            set(ref(db, `users/${username}/lastActive`), Date.now());
 
             // Update streak
             userStreak++;
