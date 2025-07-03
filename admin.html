@@ -800,6 +800,15 @@
         }
 
         init();
+
+        // Expose admin functions to the global window object
+        window.startNewChallenge = startNewChallenge;
+        window.completeChallenge = completeChallenge;
+        window.resetChallenge = resetChallenge;
+        window.exportData = exportData;
+        window.sendBroadcast = sendBroadcast;
+        window.quickBroadcast = quickBroadcast;
+        window.clearLog = clearLog;
     </script>
 </body>
 </html>
