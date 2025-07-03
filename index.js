@@ -382,8 +382,11 @@ function copyLink() {
 }
 
 // Tap Handler
-tapButton.addEventListener('click', handleTap);
-tapButton.addEventListener('touchstart', handleTap, { passive: true });
+if ('ontouchstart' in window) {
+    tapButton.addEventListener('touchstart', handleTap, { passive: true });
+} else {
+    tapButton.addEventListener('click', handleTap);
+}
 
 function handleTap(event) {
     event.preventDefault();
