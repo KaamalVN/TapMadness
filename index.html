@@ -1116,10 +1116,12 @@
             userTapsEl.textContent = userTaps.toLocaleString();
             localStorage.setItem('tapmadness_user_taps', userTaps.toString());
 
-            // Update user in Firebase
-            set(ref(db, `users/${username}/taps`), userTaps);
-            set(ref(db, `users/${username}/joined`), Date.now());
-            set(ref(db, `users/${username}/lastActive`), Date.now());
+            // Write user object atomically to comply with Firebase rules
+            set(ref(db, `users/${username}`), {
+                taps: userTaps,
+                joined: Date.now(),
+                lastActive: Date.now()
+            });
 
             // Update streak
             userStreak++;
